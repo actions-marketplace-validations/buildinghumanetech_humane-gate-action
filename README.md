@@ -87,7 +87,25 @@ merits. Otherwise a change could permit itself anything on the way in.
 
 ## What it costs
 
-<!-- COST -->
+**About 7 cents per pull request.** Measured, not estimated: nine real pull
+requests replayed through this action on `claude-sonnet-4-6`, at $3.00 per
+million input tokens and $15.00 per million output tokens.
+
+| | Input tokens | Output tokens | Cost |
+|---|---|---|---|
+| Average per pull request | 20,536 | 611 | **$0.071** |
+| Cheapest run (clean, no findings) | 20,105 | 213 | $0.064 |
+| Dearest run (3 findings + a question) | 20,777 | 1,288 | $0.082 |
+| All nine together | 184,825 | 5,499 | $0.637 |
+
+Input dominates and barely moves: the rubric, the adaptation layer and your
+policy are the same every time, so a pull request costs roughly what the
+rubric costs to read. Only the output varies, which is why a clean run is
+cheaper than one that writes three findings.
+
+Your own numbers will differ with diff size and model. Token counts for every
+run are printed in the workflow log (`humanebench: usage ...`) if you want to
+measure your own.
 
 The check is advisory, so the honest framing is: this is the price of a second
 opinion on every pull request, not the price of a gate.

@@ -209,8 +209,10 @@ def build_system(mode: str = "diff") -> str:
     """
     if not os.path.exists(RUBRIC):
         raise SystemExit(
-            f"missing {RUBRIC}. Run ./scripts/sync_rubric.sh. "
-            "The check does not fetch the rubric at run time on purpose.")
+            f"missing {RUBRIC}. The rubric ships inside this action, so the "
+            "action checkout is incomplete: reference a released tag "
+            "(buildinghumanetech/humane-gate-action@v1) rather than a branch or a "
+            "partial copy. The check does not fetch the rubric at run time on purpose.")
     with open(RUBRIC) as f:
         rubric = f.read()
     with open(PROMPT) as f:

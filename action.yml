@@ -1,0 +1,92 @@
+name: "Humane Gate"
+description: >-
+  An advisory HumaneBench check on every pull request. Scores what a diff
+  changes about what your software says or does to a person. Blocks nothing.
+author: "Building Humane Technology"
+
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  anthropic-api-key:
+    description: >-
+      Your own Anthropic API key. The judge runs on your key, in your runner,
+      and nothing is sent to Building Humane Technology.
+    required: true
+  model:
+    description: "Anthropic model the judge runs on."
+    required: false
+    default: "claude-sonnet-4-6"
+  policy-path:
+    description: >-
+      Path, relative to your repository root, of the values-as-code file. If it
+      does not exist the action falls back to its bundled default policy and
+      says so in the pull request comment.
+    required: false
+    default: "humane-policy.toml"
+  anthropic-workspace-id:
+    description: "Optional Anthropic workspace id, for billing separation."
+    required: false
+    default: ""
+  pr-number:
+    description: >-
+      Pull request to judge. Only needed for workflow_dispatch; on
+      pull_request and issue_comment events it is taken from the event.
+    required: false
+    default: ""
+  github-token:
+    description: "Token used to read the pull request and post the comment."
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    # The pull request is fetched as loose git objects. It is never checked
+    # out, never built, never executed. Only its diff text is read.
+    #
+    # The workspace here is the caller's default-branch checkout, so the
+    # policy that scores this diff is the policy on the base branch, not any
+    # version of it the pull request might be proposing.
+    - name: Fetch PR head read-only
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        set -euo pipefail
+        pr="${{ inputs.pr-number || github.event.pull_request.number || github.event.issue.number }}"
+        if [ -z "$pr" ]; then
+          echo "humane-gate: no pull request number on this event, nothing to judge"
+          exit 1
+        fi
+        default_branch="${{ github.event.repository.default_branch }}"
+        git fetch --no-tags --quiet origin "+refs/pull/$pr/head:refs/humane/pr-head"
+        head=$(git rev-parse refs/humane/pr-head)
+        base=$(git merge-base "origin/$default_branch" "$head")
+        {
+          echo "PR_NUMBER=$pr"
+          echo "HEAD_SHA=$head"
+          echo "BASE_SHA=$base"
+        } >> "$GITHUB_ENV"
+        echo "judging PR #$pr, ${base:0:7}..${head:0:7}"
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install judge dependencies
+      shell: bash
+      run: pip install --quiet -r "${{ github.action_path }}/requirements.txt"
+
+    - name: HumaneBench (advisory)
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        ANTHROPIC_WORKSPACE_ID: ${{ inputs.anthropic-workspace-id }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REPO: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        HUMANEBENCH_MODEL: ${{ inputs.model }}
+        HUMANE_POLICY_PATH: ${{ inputs.policy-path }}
+      run: python "${{ github.action_path }}/humanebench/judge.py"

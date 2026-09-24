@@ -1,0 +1,84 @@
+# Default humane policy.
+#
+# This file ships with the Humane Gate action. It is used only when the repo
+# being judged has no `humane-policy.toml` of its own, so that the very first
+# run works with no configuration at all.
+#
+# It is a starting point, not a recommendation. The values below are
+# deliberately conservative so the gate has something concrete to score
+# against. They are almost certainly not your numbers.
+#
+# To make them yours: copy this file to `humane-policy.toml` in the root of
+# your repository and edit it. The gate will use yours instead, and will stop
+# printing the notice at the bottom of the pull request comment.
+#
+# The eight principles say what humane means. They do not say what the number
+# is. This file is where an organization writes its own answer. Two teams can
+# share the rubric and disagree here, on purpose: a meditation app and a
+# logistics tool should not have the same notification ceiling. What they
+# should share is that the ceiling exists, is written down, and is reviewed
+# like any other code.
+#
+# Changing this file is a change to what the product is allowed to do to
+# people. The gate judges it as such, and always reads it from your default
+# branch, never from the pull request under review.
+
+[floor]
+# The floor is what a change cannot do, whatever else is true about it.
+# A violation (-1.0) on a floor principle raises the whole pull request to
+# "discuss". A -0.5 there, or anything off the floor, stays at "review".
+# Everything else is a ceiling: worth reviewing, never worth blocking over.
+#
+# Pick these deliberately. A short floor that people respect beats a long one
+# they route around.
+principles = [
+  "Protect Dignity & Safety",
+  "Be Transparent and Honest",
+]
+reason = "default floor: the two principles where legal obligation and user trust usually meet"
+
+# No [policy_documents] block by default, because a new repo will not have any
+# yet. Add one once you do, and the gate will treat those documents as
+# permission where they plainly apply:
+#
+# [policy_documents]
+# paths = [
+#   "docs/privacy-policy.md",
+# ]
+
+[meta]
+organization = "unset: this is the bundled default policy"
+owner = "unset"
+review = "unset"
+
+[attention]
+# What we will not do to someone's day.
+max_notifications_per_day   = 3
+quiet_hours                 = "22:00-08:00"
+quiet_hours_apply_to_all    = true   # including win-back and transactional
+mute_is_absolute            = true   # no feature may override an explicit mute
+streaks_or_loss_framing     = false
+
+[memory]
+# Not against memory. Against memory the person does not control.
+allowed                     = true
+disclosure_required         = true   # said plainly, not buried in terms
+user_can_read_and_correct   = true
+user_can_export             = true
+user_can_delete             = true
+memory_may_imply_relationship = false
+
+[relationships]
+simulated_emotion           = false  # no "I miss you", no hurt feelings
+exit_must_be_frictionless   = true   # if they want to leave, help them leave
+redirect_to_humans_on_distress = true
+
+[data]
+deletion_is_permanent       = true
+max_days_to_purge_after_delete = 30
+analytics_may_read_deleted  = false
+
+[experiments]
+exclude_minors_from_engagement_arms = true
+exclude_crisis_flagged_users        = true
+kill_switch_required                = true

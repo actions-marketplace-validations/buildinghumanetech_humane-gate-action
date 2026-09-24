@@ -1,8 +1,6 @@
 name: "Humane Gate"
-description: >-
-  An advisory HumaneBench check on every pull request. Scores what a diff
-  changes about what your software says or does to a person. Blocks nothing.
-author: "Building Humane Technology"
+description: "HumaneBench on every pull request. Flags what a diff changes about how your software treats people. Blocks nothing."
+author: "Building Humane Tech"
 
 branding:
   icon: "shield"

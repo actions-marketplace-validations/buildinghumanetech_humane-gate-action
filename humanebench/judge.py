@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 import anthropic
 import requests
 
-MODEL = os.environ.get("HUMANEBENCH_MODEL", "claude-sonnet-4-5")
+MODEL = os.environ.get("HUMANEBENCH_MODEL", "claude-sonnet-4-6")
 MAX_DIFF_CHARS = 60_000
 MAX_CONTEXT_CHARS = 40_000
 # Comment marker. Deliberately unchanged from the original "shadow" name so

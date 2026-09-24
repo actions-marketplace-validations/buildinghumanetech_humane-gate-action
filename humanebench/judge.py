@@ -203,7 +203,9 @@ def build_system(mode: str = "diff") -> str:
     """HumaneBench rubric v4 verbatim, then the diff-adaptation layer.
 
     The rubric file is vendored unchanged from the benchmark repo so the two
-    stay comparable. Every deviation is listed in RUBRIC_DELTAS.md.
+    stay comparable. Every deviation is listed in RUBRIC_DELTAS.md in
+    buildinghumanetech/humane-gate:
+    https://github.com/buildinghumanetech/humane-gate/blob/main/RUBRIC_DELTAS.md
     """
     if not os.path.exists(RUBRIC):
         raise SystemExit(
@@ -400,7 +402,7 @@ def judge(diff: str, context: str = "", signed: dict = None,
     #
     # No sampling controls: the current Messages API exposes no temperature,
     # top_p or top_k. Verdicts can vary run to run on an identical diff. See
-    # RUBRIC_DELTAS.md, "Known limitations".
+    # humane-gate's RUBRIC_DELTAS.md, "Known limitations".
     resp = client.messages.create(
         model=MODEL,
         max_tokens=2000,
@@ -753,7 +755,9 @@ def render(result: dict) -> str:
         + ("document" if result.get("mode", "diff") == "document" else "diff")
         + ", or that the judge marked low-confidence, are dropped before "
         "posting. "
-        f"Deviations from {RUBRIC_TAG} are in <code>RUBRIC_DELTAS.md</code>. "
+        f"Deviations from {RUBRIC_TAG} are in humane-gate's "
+        "<a href=\"https://github.com/buildinghumanetech/humane-gate/blob/main/RUBRIC_DELTAS.md\">"
+        "<code>RUBRIC_DELTAS.md</code></a>. "
         f"Rubric <code>{rubric_commit()}</code>, "
         f"commit <code>{os.environ.get('HEAD_SHA', 'local')[:7]}</code>.</sub>",
         "",
